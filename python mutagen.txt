@@ -1,0 +1,44 @@
+# Assumes mutagen is installed!
+# DOCS: http://mutagen.readthedocs.io/en/latest/user/index.html
+#
+# Mutagen can be installed via:  pip install mutagen
+# (Note that 'pip' may be just be called 'pip3' instead, depending on your python instalation.)
+#
+# pip install mutagen --user [--upgrade]
+#         -OR- if pip cannot be found...
+# py -3 -m pip install mutagen --user [--upgrade]
+#         -OR- as a last resort...
+# <full path to python.exe> -m pip install mutagen --user [--upgrade]
+
+# For Mutagen Documentation, see: http://mutagen.readthedocs.io/en/latest/api/id3.html
+# FAQ and Tutorial: https://code.google.com/archive/p/mutagen/wikis/Tutorial.wiki
+
+
+# NOTE: This example also illustrates a few things involving file access and manipulation.
+
+from os import path, walk
+from fnmatch import fnmatch
+from mutagen.easyid3 import EasyID3
+
+
+def showMusic(glob, directory):
+    for (top, dirs, files) in walk(directory):
+        for file in files:
+            if fnmatch(file, glob):
+
+                # "Normalizing the path just for safety"
+                # This makes sure all of the path separators are correct for the OS etc..
+                mp3FilePath = path.normpath(path.join(top, file))
+
+                try:
+                    media = EasyID3(mp3FilePath)
+                    data = {  tagName:tagValue[0]   for tagName,tagValue in media.items()}
+
+                    tmplt = "Found: {artist} {album} {title}"
+                    print(tmplt.format(**data))
+
+                except Exception as e:
+                    print("Could not read: " + file + " " + str(e))
+
+
+showMusic("*.mp3", "E:/")
